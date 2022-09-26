@@ -319,7 +319,35 @@ export function createListenToRabbitMQHandler() {
       throw new Error(`Proposal with id ${proposalPk} not found`);
     }
 
-    await markProposalEventAsDoneAndCallWorkflowEngine(eventType, proposal);
+    const updatedProposals = await markProposalEventAsDoneAndCallWorkflowEngine(
+      eventType,
+      proposal
+    );
+
+    if (updatedProposals) {
+      for (const updatedProposal of updatedProposals) {
+        if (!updatedProposal) {
+          return;
+        }
+
+        const fullProposalMessage = await getProposalMessageData(
+          updatedProposal
+        );
+
+        // NOTE: This message is consumed by scichat
+        rabbitMQ.sendMessage(
+          Queue.SCICHAT_PROPOSAL,
+          Event.PROPOSAL_STATUS_CHANGED_BY_WORKFLOW,
+          fullProposalMessage
+        );
+        // NOTE: This message is consumed by scicat
+        rabbitMQ.sendMessage(
+          Queue.SCICAT_PROPOSAL,
+          Event.PROPOSAL_STATUS_CHANGED_BY_WORKFLOW,
+          fullProposalMessage
+        );
+      }
+    }
   };
 
   rabbitMQ.listenOn(Queue.SCHEDULED_EVENTS, async (type, message) => {
