@@ -1,14 +1,14 @@
-import 'reflect-metadata';
 import { logger } from '@user-office-software/duo-logger';
 import { OpenIdClient } from '@user-office-software/openid';
 import { ValidTokenSet } from '@user-office-software/openid/lib/model/ValidTokenSet';
 import { ValidUserInfo } from '@user-office-software/openid/lib/model/ValidUserInfo';
 import { GraphQLError } from 'graphql';
-import { UserinfoResponse } from 'openid-client';
+import 'reflect-metadata';
 import { container } from 'tsyringe';
 
 import { Tokens } from '../config/Tokens';
 import { AdminDataSource } from '../datasources/AdminDataSource';
+import { Institution } from '../models/Institution';
 import { rejection, Rejection } from '../models/Rejection';
 import { SettingsId } from '../models/Settings';
 import { AuthJwtPayload, User, UserRole } from '../models/User';
@@ -43,7 +43,8 @@ export abstract class OAuthAuthorization extends UserAuthorization {
         code,
         redirectUri
       );
-      const user = await this.upsertUser(userProfile, tokenSet);
+      const institution = await this.upsertInstitution(userProfile);
+      const user = await this.upsertUser(userProfile, tokenSet, institution.id);
 
       return user;
     } catch (error) {
@@ -99,26 +100,12 @@ export abstract class OAuthAuthorization extends UserAuthorization {
     });
   }
 
-  private async getUserInstitutionId(userInfo: UserinfoResponse) {
-    if (userInfo.organisation) {
-      const institutions = await this.adminDataSource.getInstitutions({
-        name: userInfo.organisation as string,
-      });
-
-      if (institutions.length === 1) {
-        return institutions[0].id;
-      }
-    }
-
-    return undefined;
-  }
-
   private async upsertUser(
     userInfo: ValidUserInfo,
-    tokenSet: ValidTokenSet
+    tokenSet: ValidTokenSet,
+    institutionId: number
   ): Promise<User> {
     const client = await OpenIdClient.getInstance();
-    const institutionId = await this.getUserInstitutionId(userInfo);
     const userWithOAuthSubMatch = await this.userDataSource.getByOIDCSub(
       userInfo.sub
     );
@@ -143,7 +130,7 @@ export abstract class OAuthAuthorization extends UserAuthorization {
         oauthIssuer: client.issuer.metadata.issuer,
         oauthRefreshToken: tokenSet.refresh_token ?? '',
         oidcSub: userInfo.sub,
-        organisation: institutionId ?? user.organisation,
+        organisation: institutionId,
         position: userInfo.position as string,
         preferredname: userInfo.name,
         telephone: userInfo.phone_number,
@@ -166,7 +153,7 @@ export abstract class OAuthAuthorization extends UserAuthorization {
         'unspecified',
         1,
         new Date(),
-        1,
+        institutionId ?? 1,
         '',
         '',
         userInfo.email,
@@ -181,6 +168,54 @@ export abstract class OAuthAuthorization extends UserAuthorization {
 
       return newUser;
     }
+  }
+
+  private async upsertInstitution(
+    userInfo: ValidUserInfo
+  ): Promise<Institution> {
+    let institution: Institution | null = null;
+    if (userInfo.institution_id) {
+      const institutions = await this.adminDataSource.getInstitutions({
+        rorId: userInfo.institution_id,
+      });
+      institution = institutions?.[0] ?? null;
+    }
+
+    // If institution is not found by ROR ID, try to find it by name
+    if (!institution && userInfo.institution) {
+      const institutions = await this.adminDataSource.getInstitutions({
+        name: userInfo.institution,
+      });
+      institution = institutions?.[0] ?? null;
+    }
+
+    if (!institution) {
+      const countries = await this.adminDataSource.getCountries({
+        name: userInfo.institution_country,
+      });
+
+      const country = countries?.[0] ?? null;
+
+      if (!country) {
+        throw new GraphQLError('Country not found', {
+          extensions: { userInfo },
+        });
+      }
+
+      institution = await this.adminDataSource.createInstitution({
+        name: userInfo.institution,
+        rorId: userInfo.institution_id,
+        country: country.id,
+      });
+
+      if (!institution) {
+        throw new GraphQLError('Could not create institution', {
+          extensions: { userInfo },
+        });
+      }
+    }
+
+    return institution;
   }
 
   private validateUser(user: User | null): ValidUser {

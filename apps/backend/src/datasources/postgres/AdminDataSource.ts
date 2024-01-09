@@ -18,6 +18,7 @@ import { MergeInstitutionsInput } from '../../resolvers/mutations/MergeInstituti
 import { UpdateFeaturesInput } from '../../resolvers/mutations/settings/UpdateFeaturesMutation';
 import { UpdateSettingsInput } from '../../resolvers/mutations/settings/UpdateSettingMutation';
 import { UpdateApiAccessTokenInput } from '../../resolvers/mutations/UpdateApiAccessTokenMutation';
+import { CountriesFilter } from '../../resolvers/queries/CountriesQuery';
 import { AdminDataSource } from '../AdminDataSource';
 import { Entry } from './../../models/Entry';
 import { FeatureId } from './../../models/Feature';
@@ -85,7 +86,7 @@ export default class PostgresAdminDataSource implements AdminDataSource {
       .insert({
         institution: institution.name,
         country_id: institution.country,
-        verified: institution.verified,
+        ror_id: institution.rorId,
       })
       .into('institutions')
       .returning('*');
@@ -184,11 +185,11 @@ export default class PostgresAdminDataSource implements AdminDataSource {
       .orderByRaw('institution_id=1 desc')
       .orderBy('institution', 'asc')
       .modify((query) => {
-        if (filter?.isVerified) {
-          query.where('verified', filter.isVerified);
-        }
         if (filter?.name) {
           query.where('institution', filter.name);
+        }
+        if (filter?.rorId) {
+          query.where('ror_id', filter.rorId);
         }
       })
       .then((intDB: InstitutionRecord[]) =>
@@ -221,10 +222,15 @@ export default class PostgresAdminDataSource implements AdminDataSource {
       );
   }
 
-  async getCountries(): Promise<Entry[]> {
+  async getCountries(filter?: CountriesFilter): Promise<Entry[]> {
     return database
       .select()
       .from('countries')
+      .modify((query) => {
+        if (filter?.name) {
+          query.where('country', filter.name);
+        }
+      })
       .then((countDB: CountryRecord[]) =>
         countDB.map((count) => {
           return { id: count.country_id, value: count.country };

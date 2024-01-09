@@ -5,10 +5,12 @@ import { Institution } from '../../models/Institution';
 import { Permissions } from '../../models/Permissions';
 import { Settings, SettingsId } from '../../models/Settings';
 import { CreateApiAccessTokenInput } from '../../resolvers/mutations/CreateApiAccessTokenMutation';
+import { CreateInstitutionsArgs } from '../../resolvers/mutations/CreateInstitutionsMutation';
 import { MergeInstitutionsInput } from '../../resolvers/mutations/MergeInstitutionsMutation';
 import { UpdateFeaturesInput } from '../../resolvers/mutations/settings/UpdateFeaturesMutation';
 import { UpdateSettingsInput } from '../../resolvers/mutations/settings/UpdateSettingMutation';
 import { UpdateApiAccessTokenInput } from '../../resolvers/mutations/UpdateApiAccessTokenMutation';
+import { CountriesFilter } from '../../resolvers/queries/CountriesQuery';
 import { AdminDataSource } from '../AdminDataSource';
 
 export const dummyInstitution = new Institution(1, 'ESS', 1, true);
@@ -69,7 +71,7 @@ export class AdminDataSourceMock implements AdminDataSource {
     return dummyInstitution;
   }
   async createInstitution(
-    institution: Institution
+    institution: CreateInstitutionsArgs
   ): Promise<import('../../models/Institution').Institution | null> {
     return dummyInstitution;
   }
@@ -100,7 +102,7 @@ export class AdminDataSourceMock implements AdminDataSource {
     throw new Error('Method not implemented.');
   }
 
-  async getCountries(): Promise<Entry[]> {
+  async getCountries(filter?: CountriesFilter): Promise<Entry[]> {
     throw new Error('Method not implemented.');
   }
   async getNationalities(): Promise<Entry[]> {

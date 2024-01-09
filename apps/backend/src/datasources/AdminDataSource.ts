@@ -11,6 +11,7 @@ import { MergeInstitutionsInput } from '../resolvers/mutations/MergeInstitutions
 import { UpdateFeaturesInput } from '../resolvers/mutations/settings/UpdateFeaturesMutation';
 import { UpdateSettingsInput } from '../resolvers/mutations/settings/UpdateSettingMutation';
 import { UpdateApiAccessTokenInput } from '../resolvers/mutations/UpdateApiAccessTokenMutation';
+import { CountriesFilter } from '../resolvers/queries/CountriesQuery';
 import { InstitutionsFilter } from './../resolvers/queries/InstitutionsQuery';
 
 export interface AdminDataSource {
@@ -24,7 +25,7 @@ export interface AdminDataSource {
   mergeInstitutions(args: MergeInstitutionsInput): Promise<Institution | null>;
   getInstitutions(filter?: InstitutionsFilter): Promise<Institution[]>;
   getInstitutionUsers(id: number): Promise<BasicUserDetails[]>;
-  getCountries(): Promise<Entry[]>;
+  getCountries(filter?: CountriesFilter): Promise<Entry[]>;
   getNationalities(): Promise<Entry[]>;
   get(id: number): Promise<string | null>;
   setPageText(id: number, text: string): Promise<Page>;

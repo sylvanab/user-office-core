@@ -7,6 +7,7 @@ import { AdminDataSource } from '../datasources/AdminDataSource';
 import { Authorized } from '../decorators';
 import { Roles } from '../models/Role';
 import { UserWithRole } from '../models/User';
+import { CountriesFilter } from '../resolvers/queries/CountriesQuery';
 import { getContextKeys } from '../utils/helperFunctions';
 import { InstitutionsFilter } from './../resolvers/queries/InstitutionsQuery';
 
@@ -24,8 +25,8 @@ export default class AdminQueries {
     return await this.dataSource.getNationalities();
   }
 
-  async getCountries() {
-    return await this.dataSource.getCountries();
+  async getCountries(filter?: CountriesFilter) {
+    return await this.dataSource.getCountries(filter);
   }
 
   async getCountry(id: number) {

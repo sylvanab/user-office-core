@@ -21,7 +21,7 @@ export class Institution implements Partial<InstitutionOrigin> {
   name: string;
 
   @Field()
-  verified: boolean;
+  rorId: string;
 }
 
 @Resolver(() => Institution)
