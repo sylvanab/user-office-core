@@ -220,7 +220,7 @@ export class StfcUserDataSource implements UserDataSource {
     throw new Error('Method not implemented.');
   }
 
-  async createOrganisation(name: string, verified: boolean): Promise<number> {
+  async createOrganisation(name: string, rorId: string): Promise<number> {
     throw new Error('Method not implemented.');
   }
 

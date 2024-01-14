@@ -18,8 +18,8 @@ const columns = [
   { title: 'Name', field: 'name' },
   { title: 'Country', field: 'country.value' },
   {
-    title: 'Verified',
-    field: 'verified',
+    title: 'ROR ID',
+    field: 'rorId',
     lookup: { true: 'Yes', false: 'No' },
   },
 ];

@@ -68,7 +68,7 @@ describe('Test Admin Mutations', () => {
         id: 1,
         name: 'something',
         country: 1,
-        verified: true,
+        rorId: 'something',
       })
     ).resolves.toHaveProperty('reason', 'INSUFFICIENT_PERMISSIONS');
   });

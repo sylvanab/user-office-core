@@ -65,7 +65,7 @@ export default class PostgresAdminDataSource implements AdminDataSource {
     const [institutionRecord]: InstitutionRecord[] = await database
       .update({
         institution: institution.name,
-        verified: institution.verified,
+        rorId: institution.rorId,
         country_id: institution.country,
       })
       .from('institutions')

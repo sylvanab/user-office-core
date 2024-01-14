@@ -57,6 +57,9 @@ BEGIN
     
 		ALTER TABLE institutions
 		DROP verified;
+
+		ALTER TABLE public.institutions
+		ALTER COLUMN institution SET NOT NULL;
 	END;
 	END IF;
 END;

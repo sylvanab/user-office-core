@@ -19,8 +19,8 @@ export class UpdateInstitutionsArgs {
   @Field(() => String, { nullable: true })
   name: string;
 
-  @Field(() => Boolean, { nullable: true })
-  verified: boolean;
+  @Field(() => String, { nullable: true })
+  rorId?: string;
 
   @Field(() => Int)
   country: number;

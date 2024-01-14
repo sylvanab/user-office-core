@@ -76,7 +76,7 @@ export interface UserDataSource {
   ensureDummyUsersExist(userIds: number[]): Promise<User[]>;
   createOrganisation(
     name: string,
-    verified: boolean,
+    rorId: string,
     countryId?: number
   ): Promise<number>;
   update(user: UpdateUserArgs): Promise<User>;

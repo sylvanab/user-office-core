@@ -2,6 +2,6 @@ query getInstitutions($filter: InstitutionsFilter) {
   institutions(filter: $filter) {
     id
     name
-    verified
+    rorId
   }
 }

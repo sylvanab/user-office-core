@@ -20,7 +20,7 @@ export class Institution implements Partial<InstitutionOrigin> {
   @Field()
   name: string;
 
-  @Field()
+  @Field(() => String, { nullable: true })
   rorId: string;
 }
 

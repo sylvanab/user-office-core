@@ -656,13 +656,13 @@ export default class PostgresUserDataSource implements UserDataSource {
   }
   async createOrganisation(
     name: string,
-    verified: boolean,
+    rorId: string,
     countryId: number | null = null
   ): Promise<number> {
     const [institution]: InstitutionRecord[] = await database
       .insert({
         institution: name,
-        verified,
+        rorId,
         country_id: countryId,
       })
       .into('institutions')

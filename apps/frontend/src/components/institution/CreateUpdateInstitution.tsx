@@ -33,12 +33,12 @@ const CreateUpdateInstitution = ({
     ? {
         name: institution.name,
         country: institution.country?.id,
-        verified: institution.verified,
+        rorId: institution.rorId,
       }
     : {
         name: '',
         country: null,
-        verified: false,
+        rorId: '',
       };
 
   if (!countries) {
@@ -46,7 +46,7 @@ const CreateUpdateInstitution = ({
   }
 
   const createInstitution = async (
-    verified: boolean,
+    rorId: string,
     name: string,
     country: number
   ) => {
@@ -56,7 +56,7 @@ const CreateUpdateInstitution = ({
       }).createInstitution({
         name,
         country,
-        verified,
+        rorId,
       });
       close(createInstitution);
     } catch (error) {
@@ -66,7 +66,7 @@ const CreateUpdateInstitution = ({
 
   const updateInstitution = async (
     id: number,
-    verified: boolean,
+    rorId: string,
     country: number,
     name: string
   ) => {
@@ -76,7 +76,7 @@ const CreateUpdateInstitution = ({
       }).updateInstitution({
         id,
         name,
-        verified,
+        rorId,
         country,
       });
 
@@ -93,19 +93,19 @@ const CreateUpdateInstitution = ({
         institution
           ? await updateInstitution(
               institution.id,
-              values.verified,
+              values.rorId,
               values.country as number,
               values.name
             )
           : await createInstitution(
-              values.verified,
+              values.rorId,
               values.name,
               values.country as number
             );
       }}
       validationSchema={Yup.object().shape({
         name: Yup.string().required(),
-        verified: Yup.boolean().required(),
+        rorId: Yup.string(),
         country: Yup.number().positive('Country is required').required(),
       })}
     >
@@ -138,22 +138,20 @@ const CreateUpdateInstitution = ({
             style={{ marginTop: '10px' }}
             control={
               <Field
-                id="verified"
-                name="verified"
+                id="rorId"
+                name="rorId"
                 type="checkbox"
                 component={Checkbox}
-                checked={values.verified}
-                onChange={(): void =>
-                  setFieldValue('verified', !values.verified)
-                }
+                checked={values.rorId}
+                onChange={(): void => setFieldValue('rorId', values.rorId)}
                 inputProps={{
                   'aria-label': 'primary checkbox',
-                  'data-cy': 'institution-verified',
+                  'data-cy': 'institution-ror-id',
                 }}
                 disabled={isExecutingCall}
               />
             }
-            label="Verified"
+            label="ROR ID"
           />
           <ActionButtonContainer>
             {institution && (
@@ -194,7 +192,7 @@ CreateUpdateInstitution.propTypes = {
   institution: PropTypes.shape({
     id: PropTypes.number.isRequired,
     name: PropTypes.string.isRequired,
-    verified: PropTypes.bool.isRequired,
+    rorId: PropTypes.string,
     country: PropTypes.shape({
       id: PropTypes.number.isRequired,
       value: PropTypes.string.isRequired,
