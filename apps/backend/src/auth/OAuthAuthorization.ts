@@ -4,6 +4,7 @@ import { ValidTokenSet } from '@user-office-software/openid/lib/model/ValidToken
 import { ValidUserInfo } from '@user-office-software/openid/lib/model/ValidUserInfo';
 import { GraphQLError } from 'graphql';
 import 'reflect-metadata';
+import { UserinfoResponse } from 'openid-client';
 import { container } from 'tsyringe';
 
 import { Tokens } from '../config/Tokens';
@@ -19,6 +20,12 @@ type ValidUser = NonNullableField<
   User,
   'oidcSub' | 'oauthAccessToken' | 'oauthRefreshToken'
 >;
+
+export type PingUserInfoResponse = UserinfoResponse<{
+  institution_name: string;
+  institution_country: string;
+  institution_ror_id: string;
+}>;
 
 export abstract class OAuthAuthorization extends UserAuthorization {
   private db = container.resolve<AdminDataSource>(Tokens.AdminDataSource);
@@ -171,25 +178,34 @@ export abstract class OAuthAuthorization extends UserAuthorization {
   }
 
   private async upsertInstitution(
-    userInfo: ValidUserInfo
+    userInfo: PingUserInfoResponse
   ): Promise<Institution> {
     let institution: Institution | null = null;
-    if (userInfo.institution_id) {
+    if (userInfo.institution_ror_id) {
       const institutions = await this.adminDataSource.getInstitutions({
-        rorId: userInfo.institution_id,
+        rorId: userInfo.institution_ror_id,
       });
       institution = institutions?.[0] ?? null;
     }
 
-    // If institution is not found by ROR ID, try to find it by name
-    if (!institution && userInfo.institution) {
+    // If institution is not found by ROR ID, and the name is set try to find it by name
+    // This is a workaround for the case when the institution is not registered in ROR
+    if (!institution && userInfo.institution_name) {
       const institutions = await this.adminDataSource.getInstitutions({
-        name: userInfo.institution,
+        name: userInfo.institution_name,
       });
       institution = institutions?.[0] ?? null;
     }
 
-    if (!institution) {
+    const shouldCreateNewInstitution = !institution;
+    if (shouldCreateNewInstitution) {
+      const rorApiUrl = process.env.ROR_API_URL;
+      if (!rorApiUrl) {
+        throw new GraphQLError('ROR_API_URL is not set');
+      }
+      const fetch(`rorApiUrl/organizations/${}`, {
+        method: 'GET',
+      });
       const countries = await this.adminDataSource.getCountries({
         name: userInfo.institution_country,
       });
