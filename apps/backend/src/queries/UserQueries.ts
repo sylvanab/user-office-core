@@ -27,7 +27,11 @@ export default class UserQueries {
     return this.dataSource.getUser(id);
   }
 
-  @Authorized([Roles.USER_OFFICER, Roles.INSTRUMENT_SCIENTIST])
+  @Authorized([
+    Roles.USER_OFFICER,
+    Roles.INSTRUMENT_SCIENTIST,
+    Roles.INTERNAL_REVIEWER,
+  ])
   async get(agent: UserWithRole | null, id: number) {
     return this.dataSource.getUser(id);
   }
@@ -57,8 +61,8 @@ export default class UserQueries {
         user.firstname,
         user.lastname,
         user.preferredname,
-        user.organisation,
-        user.organizationId,
+        user.institution,
+        user.institutionId,
         user.position,
         user.created,
         user.placeholder,
@@ -85,8 +89,8 @@ export default class UserQueries {
       user.firstname,
       user.lastname,
       user.preferredname,
-      user.organisation,
-      user.organizationId,
+      user.institution,
+      user.institutionId,
       user.position,
       user.created,
       user.placeholder,

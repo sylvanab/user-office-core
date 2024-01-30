@@ -20,6 +20,7 @@ export interface UserDataSource {
   // Read
   me(id: number): Promise<User | null>;
   getUser(id: number): Promise<User | null>;
+  getUsersByUserNumbers(id: readonly number[]): Promise<User[]>;
   getUserWithInstitution(id: number): Promise<{
     user: User;
     institution: Institution;
@@ -65,7 +66,7 @@ export interface UserDataSource {
     gender: string,
     nationality: number,
     birthdate: Date,
-    organisation: number,
+    institution: number,
     department: string,
     position: string,
     email: string,
@@ -74,7 +75,7 @@ export interface UserDataSource {
   ): Promise<User>;
   ensureDummyUserExists(userId: number): Promise<User>;
   ensureDummyUsersExist(userIds: number[]): Promise<User[]>;
-  createOrganisation(
+  createInstitution(
     name: string,
     rorId: string,
     countryId?: number

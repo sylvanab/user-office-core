@@ -216,7 +216,7 @@ export class UserDataSourceMock implements UserDataSource {
   async createInviteUser(args: CreateUserByEmailInviteArgs): Promise<number> {
     return 5;
   }
-  async createOrganisation(
+  async createInstitution(
     name: string,
     rorId: string,
     countryId?: number
@@ -421,5 +421,9 @@ export class UserDataSourceMock implements UserDataSource {
 
   async mergeUsers(fromUserId: number, intoUserId: number): Promise<void> {
     return;
+  }
+
+  async getUsersByUserNumbers(id: readonly number[]): Promise<User[]> {
+    return [dummyUser, dummyUserOfficer];
   }
 }

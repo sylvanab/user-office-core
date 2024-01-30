@@ -107,6 +107,20 @@ export abstract class OAuthAuthorization extends UserAuthorization {
     });
   }
 
+  private async getUserInstitutionId(userInfo: UserinfoResponse) {
+    if (userInfo.institution_name) {
+      const institutions = await this.adminDataSource.getInstitutions({
+        name: userInfo.institution_name as string,
+      });
+
+      if (institutions.length === 1) {
+        return institutions[0].id;
+      }
+    }
+
+    return undefined;
+  }
+
   private async upsertUser(
     userInfo: ValidUserInfo,
     tokenSet: ValidTokenSet,
@@ -137,9 +151,9 @@ export abstract class OAuthAuthorization extends UserAuthorization {
         oauthIssuer: client.issuer.metadata.issuer,
         oauthRefreshToken: tokenSet.refresh_token ?? '',
         oidcSub: userInfo.sub,
-        organisation: institutionId,
+        institutionId: institutionId ?? user.institutionId,
         position: userInfo.position as string,
-        preferredname: userInfo.name,
+        preferredname: userInfo.preferred_username,
         telephone: userInfo.phone_number,
         user_title: userInfo.title as string,
       });
@@ -152,7 +166,7 @@ export abstract class OAuthAuthorization extends UserAuthorization {
         undefined,
         userInfo.family_name,
         userInfo.email,
-        userInfo.given_name,
+        userInfo.preferred_username,
         userInfo.sub,
         tokenSet.access_token,
         tokenSet.refresh_token ?? '',
