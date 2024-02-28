@@ -64,6 +64,60 @@ router.get(`/${ZIPType.ATTACHMENT}/:proposal_pks`, async (req, res, next) => {
   }
 });
 
+router.get(`/${ZIPType.PROPOSAL}/:proposal_pks`, async (req, res, next) => {
+  try {
+    if (!req.user) {
+      throw new Error('Not authorized');
+    }
+    const factoryServices =
+      container.resolve<DownloadTypeServices>(FactoryServices);
+
+    const userWithRole = {
+      ...res.locals.agent,
+    };
+    const proposalPks: number[] = req.params.proposal_pks
+      .split(',')
+      .map((n: string) => parseInt(n))
+      .filter((id: number) => !isNaN(id));
+
+    const meta: MetaBase = {
+      collectionFilename: `proposals_${getCurrentTimestamp()}.pdf`,
+      singleFilename: '',
+    };
+
+    const data = await factoryServices.getPdfProposals(
+      userWithRole,
+      proposalPks,
+      meta,
+      {
+        filter: req.query?.filter?.toString(),
+      }
+    );
+
+    if (!data) {
+      throw new Error('Could not get proposal details');
+    }
+
+    callFactoryService<ProposalAttachmentData, MetaBase>(
+      DownloadType.ZIP,
+      ZIPType.PROPOSAL,
+      {
+        data,
+        meta: {
+          collectionFilename: `proposals_${getCurrentTimestamp()}.zip`,
+          singleFilename: `proposal_${getCurrentTimestamp()}.pdf`,
+        },
+        userRole: req.user.currentRole,
+      },
+      req,
+      res,
+      next
+    );
+  } catch (e) {
+    next(e);
+  }
+});
+
 export default function zipDownload() {
   return router;
 }

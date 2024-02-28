@@ -43,8 +43,9 @@ import {
   FeatureId,
 } from 'generated/sdk';
 import { useLocalStorage } from 'hooks/common/useLocalStorage';
-import { useDownloadPDFProposal } from 'hooks/proposal/useDownloadPDFProposal';
+//import { useDownloadPDFProposal } from 'hooks/proposal/useDownloadPDFProposal';
 import { useDownloadProposalAttachment } from 'hooks/proposal/useDownloadProposalAttachment';
+import { useDownloadPDFProposalsZip } from 'hooks/proposal/useDownloadProposalsZip';
 import { useDownloadXLSXProposal } from 'hooks/proposal/useDownloadXLSXProposal';
 import {
   ProposalViewData,
@@ -288,7 +289,8 @@ const ProposalTableOfficer = ({
   const [actionsMenuAnchorElement, setActionsMenuAnchorElement] =
     useState<null | HTMLElement>(null);
   const [openDownloadAttachment, setOpenDownloadAttachment] = useState(false);
-  const downloadPDFProposal = useDownloadPDFProposal();
+  //const downloadPDFProposal = useDownloadPDFProposal();
+  const downloadPDFProposalsZip = useDownloadPDFProposalsZip();
   const downloadProposalAttachment = useDownloadProposalAttachment();
   const downloadXLSXProposal = useDownloadXLSXProposal();
   const { api } = useDataApiWithFeedback();
@@ -322,9 +324,8 @@ const ProposalTableOfficer = ({
   };
   const handleClose = (selectedOption: string) => {
     if (selectedOption === DownloadMenuOption.PROPOSAL) {
-      downloadPDFProposal(
-        selectedProposals?.map((proposal) => proposal.primaryKey),
-        selectedProposals?.[0].title
+      downloadPDFProposalsZip(
+        selectedProposals?.map((proposal) => proposal.primaryKey)
       );
     } else if (selectedOption === DownloadMenuOption.ATTACHMENT) {
       setOpenDownloadAttachment(true);
