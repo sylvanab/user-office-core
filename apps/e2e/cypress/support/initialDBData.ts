@@ -111,6 +111,11 @@ export default {
       text: 'Add samples',
       type: DataType.SAMPLE_DECLARATION,
     },
+    techniquePicker: {
+      id: 'technique_picker_question',
+      text: 'Technique Picker question from seeds',
+      type: DataType.TECHNIQUE_PICKER,
+    },
   },
   answers: {
     proposal: {
@@ -167,6 +172,7 @@ export default {
       textInput: {
         value: 'Text input answer from seeds',
       },
+      techniquePicker: { value: 1 },
     },
   },
   proposal: {
@@ -185,6 +191,14 @@ export default {
   instrument3: {
     id: 3,
     name: 'Instrument 3',
+  },
+  technique1: {
+    id: 1,
+    name: 'Technique 1',
+  },
+  technique2: {
+    id: 2,
+    name: 'Technique 2',
   },
   fap: {
     id: 1,
