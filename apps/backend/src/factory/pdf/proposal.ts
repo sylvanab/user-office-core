@@ -344,6 +344,18 @@ export const collectProposalPDFData = async (
         answer.value = instruments?.length
           ? instruments.map((instrument) => instrument.name).join(', ')
           : '';
+      } else if (answer.question.dataType === DataType.TECHNIQUE_PICKER) {
+        const techniqueIds = Array.isArray(answer.value)
+          ? answer.value
+          : [answer.value];
+        const techniques =
+          await baseContext.queries.technique.getTechniquesByIds(
+            user,
+            techniqueIds
+          );
+        answer.value = techniques?.length
+          ? techniques.map((technique) => technique.name).join(', ')
+          : '';
       }
     }
 
